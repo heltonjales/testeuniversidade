@@ -1,0 +1,99 @@
+unit uDisciplina;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uBase, Data.DB, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.Grids,
+  Vcl.DBGrids, Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TfrmCadastroDisciplina = class(TfrmCadastroBase)
+    Código: TLabel;
+    edtId: TEdit;
+    Descrição: TLabel;
+    edtDescricao: TEdit;
+    qrDisciplina: TFDQuery;
+    dsDisciplina: TDataSource;
+    procedure sbSalvarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure LimparCampos;
+    procedure ExibirRegistros;
+  end;
+
+var
+  frmCadastroDisciplina: TfrmCadastroDisciplina;
+
+implementation
+
+{$R *.dfm}
+
+uses uModulo, uSystemUtils;
+
+procedure TfrmCadastroDisciplina.ExibirRegistros;
+begin
+  qrDisciplina.Close;
+  qrDisciplina.SQL.Clear;
+  qrDisciplina.SQL.Add('SELECT * FROM disciplina');
+  qrDisciplina.SQL.Add(' ORDER BY id ASC   ');
+  qrDisciplina.Open();
+end;
+
+procedure TfrmCadastroDisciplina.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  frmCadastroDisciplina := nil;
+end;
+
+procedure TfrmCadastroDisciplina.LimparCampos;
+begin
+  edtId.Text := '';
+  edtDescricao.Text := '';
+end;
+
+procedure TfrmCadastroDisciplina.sbSalvarClick(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtDescricao.Text) = '' then
+  begin
+    ShowMessage('Campo nome descricão.');
+    edtDescricao.SetFocus;
+    Exit;
+  end;
+
+  qrDisciplina.Close;
+  qrDisciplina.SQL.Clear;
+  qrDisciplina.SQL.Add('SELECT * FROM disciplina WHERE descricao = :descricao');
+  qrDisciplina.ParamByName('descricao').AsString := edtDescricao.Text;
+  qrDisciplina.Open;
+
+  if qrDisciplina.IsEmpty then
+  begin
+    qrDisciplina.Close;
+    qrDisciplina.SQL.Clear;
+    qrDisciplina.SQL.Add('INSERT INTO disciplin (descricao)');
+    qrDisciplina.SQL.Add('VALUES (:nome, :cpf)');
+    qrDisciplina.ParamByName('descricao').AsString := edtDescricao.Text;
+    qrDisciplina.ExecSQL;
+
+    ShowMessage('Cadastro realizado com sucesso.');
+    LimparCampos;
+    ExibirRegistros;
+    Exit;
+  end
+  else
+  begin
+    ShowMessage('Aluno possui cadastro.');
+    Exit;
+  end;
+end;
+
+end.

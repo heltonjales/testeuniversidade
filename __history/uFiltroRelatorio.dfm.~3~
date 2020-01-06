@@ -1,0 +1,53 @@
+object frmFiltroRelatorio: TfrmFiltroRelatorio
+  Left = 0
+  Top = 0
+  Caption = 'Filtro Relat'#243'rio de Alunos'
+  ClientHeight = 126
+  ClientWidth = 331
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  OnClose = FormClose
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 16
+    Top = 24
+    Width = 225
+    Height = 23
+    Caption = 'FILTRO DE RELAT'#211'RIO'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object cbFiltro: TComboBox
+    Left = 16
+    Top = 64
+    Width = 145
+    Height = 21
+    ItemIndex = 0
+    TabOrder = 0
+    Text = 'Todos'
+    Items.Strings = (
+      'Todos'
+      'Alunos Aprovados'
+      'Alunos Reprovados')
+  end
+  object btnFiltrar: TButton
+    Left = 175
+    Top = 62
+    Width = 75
+    Height = 25
+    Caption = 'Filtrar'
+    TabOrder = 1
+    OnClick = btnFiltrarClick
+  end
+end

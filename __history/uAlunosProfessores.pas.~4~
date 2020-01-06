@@ -1,0 +1,52 @@
+unit uAlunosProfessores;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RLReport, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+
+type
+  TForm1 = class(TForm)
+    rlHistoricoAlunos: TRLReport;
+    RLBand1: TRLBand;
+    RLLabel2: TRLLabel;
+    RLBand2: TRLBand;
+    RLDraw2: TRLDraw;
+    RLSystemInfo1: TRLSystemInfo;
+    RLLabel3: TRLLabel;
+    RLSystemInfo2: TRLSystemInfo;
+    RLBand3: TRLBand;
+    RLLabel1: TRLLabel;
+    RLDraw1: TRLDraw;
+    RLGroup1: TRLGroup;
+    RLBand4: TRLBand;
+    RLDBText3: TRLDBText;
+    RLBand5: TRLBand;
+    RLLabel4: TRLLabel;
+    RLLabel9: TRLLabel;
+    RLBand6: TRLBand;
+    RLDBText1: TRLDBText;
+    RLLabel8: TRLLabel;
+    qrData: TFDQuery;
+    dsData: TDataSource;
+    RLDBText2: TRLDBText;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+uses uModulo;
+
+end.

@@ -1,0 +1,73 @@
+unit uPrincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus;
+
+type
+  TfrmPrincipal = class(TForm)
+    MainMenu1: TMainMenu;
+    Cadastro1: TMenuItem;
+    Alunos1: TMenuItem;
+    Professores1: TMenuItem;
+    Disciplinas1: TMenuItem;
+    Pedaggico1: TMenuItem;
+    Consutlas1: TMenuItem;
+    Relatrios1: TMenuItem;
+    Matriculas1: TMenuItem;
+    urmas1: TMenuItem;
+    procedure Alunos1Click(Sender: TObject);
+    procedure Professores1Click(Sender: TObject);
+    procedure Disciplinas1Click(Sender: TObject);
+    procedure urmas1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+uses uCadastroAluno, uCadastroProfessores, uDisciplina, uProfessor_Disciplina;
+
+procedure TfrmPrincipal.Alunos1Click(Sender: TObject);
+begin
+  if frmCadastroAluno = nil then
+    frmCadastroAluno := TfrmCadastroAluno.Create(Self);
+
+  frmCadastroAluno.Show;
+end;
+
+procedure TfrmPrincipal.Disciplinas1Click(Sender: TObject);
+begin
+  if frmCadastroDisciplina = nil then
+    frmCadastroDisciplina := TfrmCadastroDisciplina.Create(Self);
+
+  frmCadastroDisciplina.Show;
+
+end;
+
+procedure TfrmPrincipal.Professores1Click(Sender: TObject);
+begin
+  if frmCadastroProfessores = nil then
+    frmCadastroProfessores := TfrmCadastroProfessores.Create(Self);
+
+  frmCadastroProfessores.Show;
+end;
+
+procedure TfrmPrincipal.urmas1Click(Sender: TObject);
+begin
+  if frmCadastroProf_Disciplina = nil then
+    frmCadastroProf_Disciplina := TfrmCadastroProf_Disciplina.Create(Self);
+
+  frmCadastroProf_Disciplina.Show;
+end;
+
+end.

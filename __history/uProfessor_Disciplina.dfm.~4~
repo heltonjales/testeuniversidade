@@ -1,0 +1,71 @@
+inherited frmCadastroBase1: TfrmCadastroBase1
+  Caption = 'frmCadastroBase1'
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited Panel1: TPanel
+    inherited sbSalvar: TSpeedButton
+      OnClick = sbSalvarClick
+    end
+  end
+  inherited Panel2: TPanel
+    object Label1: TLabel
+      Left = 401
+      Top = 23
+      Width = 43
+      Height = 13
+      Caption = 'Disciplina'
+    end
+    object Label2: TLabel
+      Left = 152
+      Top = 23
+      Width = 27
+      Height = 13
+      Caption = 'Nome'
+    end
+    object Label3: TLabel
+      Left = 13
+      Top = 23
+      Width = 19
+      Height = 13
+      Caption = 'CPF'
+    end
+    object cbDisciplina: TComboBox
+      Left = 401
+      Top = 41
+      Width = 160
+      Height = 21
+      TabOrder = 0
+    end
+    object edtProfessor: TEdit
+      Left = 152
+      Top = 41
+      Width = 233
+      Height = 21
+      TabOrder = 1
+    end
+    object edtCpf: TMaskEdit
+      Left = 13
+      Top = 41
+      Width = 120
+      Height = 21
+      EditMask = '999.999.999-99;0; '
+      MaxLength = 14
+      TabOrder = 2
+      Text = ''
+      OnExit = edtCpfExit
+    end
+  end
+  object qrDados: TFDQuery
+    Connection = dm.Conexao
+    SQL.Strings = (
+      'select * from disciplina_professor')
+    Left = 496
+    Top = 8
+  end
+  object dsDados: TDataSource
+    DataSet = qrDados
+    Left = 536
+    Top = 8
+  end
+end

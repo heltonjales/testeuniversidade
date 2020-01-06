@@ -1,0 +1,124 @@
+inherited frmLancamentoNotas: TfrmLancamentoNotas
+  Caption = 'Lan'#231'aento de Notas'
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited Panel2: TPanel
+    object Label4: TLabel
+      Left = 237
+      Top = 13
+      Width = 57
+      Height = 13
+      Caption = 'Professores'
+    end
+    object Label1: TLabel
+      Left = 12
+      Top = 13
+      Width = 43
+      Height = 13
+      Caption = 'Disciplina'
+    end
+    object Label2: TLabel
+      Left = 12
+      Top = 38
+      Width = 57
+      Height = 13
+      Caption = 'Nome Aluno'
+    end
+    object Label3: TLabel
+      Left = 259
+      Top = 38
+      Width = 32
+      Height = 13
+      Caption = 'Nota 1'
+    end
+    object Label5: TLabel
+      Left = 351
+      Top = 37
+      Width = 32
+      Height = 13
+      Caption = 'Nota 2'
+    end
+    object Label6: TLabel
+      Left = 444
+      Top = 37
+      Width = 68
+      Height = 13
+      Caption = 'Nota Trabalho'
+    end
+    object cbProfessores: TComboBox
+      Left = 300
+      Top = 10
+      Width = 222
+      Height = 21
+      TabOrder = 0
+      OnClick = cbProfessoresClick
+    end
+    object cbDisciplina: TComboBox
+      Left = 61
+      Top = 10
+      Width = 160
+      Height = 21
+      TabOrder = 1
+      OnClick = cbDisciplinaClick
+    end
+    object edtAluno: TEdit
+      Left = 12
+      Top = 56
+      Width = 233
+      Height = 21
+      TabOrder = 2
+    end
+    object Edit1: TEdit
+      Left = 259
+      Top = 56
+      Width = 78
+      Height = 21
+      TabOrder = 3
+    end
+    object Edit2: TEdit
+      Left = 351
+      Top = 55
+      Width = 78
+      Height = 21
+      TabOrder = 4
+    end
+    object Edit3: TEdit
+      Left = 444
+      Top = 56
+      Width = 78
+      Height = 21
+      TabOrder = 5
+    end
+  end
+  inherited db: TDBGrid
+    DataSource = dsDados
+  end
+  object qrDiscip_Prof: TFDQuery
+    Connection = dm.Conexao
+    SQL.Strings = (
+      'select * from disciplina_professor')
+    Left = 544
+    Top = 56
+  end
+  object qrDisciplina: TFDQuery
+    Connection = dm.Conexao
+    SQL.Strings = (
+      'select * from disciplinas')
+    Left = 544
+    Top = 104
+  end
+  object qrDados: TFDQuery
+    Connection = dm.Conexao
+    SQL.Strings = (
+      'select * from disciplina_aluno'
+      '')
+    Left = 544
+    Top = 209
+  end
+  object dsDados: TDataSource
+    DataSet = qrDados
+    Left = 544
+    Top = 153
+  end
+end

@@ -1,0 +1,58 @@
+unit uBase;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TfrmCadastroBase = class(TForm)
+    Panel1: TPanel;
+    sbNovo: TSpeedButton;
+    sbSalvar: TSpeedButton;
+    sbExcluir: TSpeedButton;
+    sbPesquisar: TSpeedButton;
+    sbEditar: TSpeedButton;
+    Panel2: TPanel;
+    db: TDBGrid;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormShow(Sender: TObject);
+    procedure sbNovoClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadastroBase: TfrmCadastroBase;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadastroBase.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
+
+procedure TfrmCadastroBase.FormShow(Sender: TObject);
+begin
+  sbNovo.Enabled := True;
+  sbSalvar.Enabled := False;
+  sbEditar.Enabled := False;
+  sbExcluir.Enabled := False;
+
+end;
+
+procedure TfrmCadastroBase.sbNovoClick(Sender: TObject);
+begin
+  sbNovo.Enabled := True;
+  sbSalvar.Enabled := True;
+  sbEditar.Enabled := False;
+  sbExcluir.Enabled := False;
+end;
+
+end.

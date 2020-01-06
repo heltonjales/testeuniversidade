@@ -1,0 +1,57 @@
+unit uFiltroRelatorio;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+
+type
+  TfrmFiltroRelatorio = class(TForm)
+    Label1: TLabel;
+    cbFiltro: TComboBox;
+    btnFiltrar: TButton;
+    qrAluno: TFDQuery;
+    dsAluno: TDataSource;
+    qrAlunoID: TIntegerField;
+    qrAlunoNOME: TStringField;
+    qrAlunoCPF: TStringField;
+    qrAlunoDESCRICAO: TStringField;
+    qrAlunoNOTA_PERIODO_1: TCurrencyField;
+    qrAlunoNOTA_PERIODO_2: TCurrencyField;
+    qrAlunoNOTA_TRABALHO: TCurrencyField;
+    procedure btnFiltrarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+
+  end;
+
+var
+  frmFiltroRelatorio: TfrmFiltroRelatorio;
+
+
+implementation
+
+{$R *.dfm}
+
+uses uRelAlunos, uModulo;
+
+procedure TfrmFiltroRelatorio.btnFiltrarClick(Sender: TObject);
+begin
+
+  if qrAluno.FieldByName('media').AsString >= 7 then
+    qrAluno.SQL.Add('AND Media >= ''7''')
+  else if qrAluno.FieldByName('media').AsString < 7 then
+    qrAluno.SQL.Add('AND Media < ''7''');
+
+  qrAluno.Open();
+  frmHistoricoAlunos.rlHistoricoAlunos.Preview();
+end;
+
+
+end.

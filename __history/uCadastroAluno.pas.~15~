@@ -1,0 +1,193 @@
+unit uCadastroAluno;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uBase, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.Buttons, Vcl.ExtCtrls, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.Mask;
+
+type
+  TfrmCadastroAluno = class(TfrmCadastroBase)
+    qrAluno: TFDQuery;
+    dsAluno: TDataSource;
+    edtId: TEdit;
+    edtNome: TEdit;
+    edtCpf: TMaskEdit;
+    Código: TLabel;
+    Nome: TLabel;
+    CPF: TLabel;
+    qrAlunoID: TIntegerField;
+    qrAlunoNOME: TStringField;
+    qrAlunoCPF: TStringField;
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
+    procedure dbCellClick(Column: TColumn);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton5Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure LimparCampos;
+    procedure ExibirRegistros;
+  end;
+
+var
+  frmCadastroAluno: TfrmCadastroAluno;
+
+implementation
+
+{$R *.dfm}
+
+uses uModulo, uSystemUtils;
+
+procedure TfrmCadastroAluno.dbCellClick(Column: TColumn);
+begin
+  inherited;
+  if qrAluno.FieldByName('cpf').AsString <> null then
+  begin
+    edtId.Text := qrAluno.FieldByName('id').AsString;
+    edtNome.Text := qrAluno.FieldByName('nome').AsString;
+    edtCpf.Text := qrAluno.FieldByName('cpf').AsString;
+
+    edtId.Enabled := False;
+    edtCpf.Enabled := False;
+  end;
+end;
+
+procedure TfrmCadastroAluno.ExibirRegistros;
+begin
+  qrAluno.Close;
+  qrAluno.SQL.Clear;
+  qrAluno.SQL.Add('SELECT * FROM aluno');
+  qrAluno.SQL.Add(' ORDER BY id ASC   ');
+  qrAluno.Open();
+end;
+
+procedure TfrmCadastroAluno.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  frmCadastroAluno := nil;
+end;
+
+procedure TfrmCadastroAluno.LimparCampos;
+begin
+  edtId.Text := '';
+  edtNome.Text := '';
+  edtCpf.Text := '';
+end;
+
+procedure TfrmCadastroAluno.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  LimparCampos;
+  ExibirRegistros;
+  edtNome.SetFocus;
+end;
+
+procedure TfrmCadastroAluno.SpeedButton2Click(Sender: TObject);
+begin
+  inherited;
+
+  if Trim(edtNome.Text) = '' then
+  begin
+    ShowMessage('Campo nome obrigatório.');
+    edtNome.SetFocus;
+    Exit;
+  end;
+
+  if Trim(edtCpf.Text) = '' then
+  begin
+    ShowMessage('Campo cpf obrigatório.');
+    edtCpf.SetFocus;
+    Exit;
+  end;
+
+  qrAluno.Close;
+  qrAluno.SQL.Clear;
+  qrAluno.SQL.Add('SELECT * FROM aluno WHERE cpf = :cpf');
+  qrAluno.ParamByName('cpf').AsString := edtCpf.Text;
+  qrAluno.Open;
+
+  if qrAluno.IsEmpty then
+  begin
+    qrAluno.Close;
+    qrAluno.SQL.Clear;
+    qrAluno.SQL.Add('INSERT INTO aluno (nome, cpf)');
+    qrAluno.SQL.Add('VALUES (:nome, :cpf)');
+    qrAluno.ParamByName('nome').AsString := edtNome.Text;
+    qrAluno.ParamByName('cpf').AsString := edtCpf.Text;
+    qrAluno.ExecSQL;
+
+    ShowMessage('Cadastro realizado com sucesso.');
+    LimparCampos;
+    ExibirRegistros;
+    Exit;
+  end
+  else
+  begin
+    ShowMessage('Aluno possui cadastro.');
+    Exit;
+  end;
+
+end;
+
+procedure TfrmCadastroAluno.SpeedButton3Click(Sender: TObject);
+begin
+  inherited;
+
+  if db.SelectedRows.Count - 1 = 0 then
+  begin
+    ShowMessage('Selecione um registro para exclusão.');
+    db.SetFocus;
+    Exit;
+  end;
+
+  if MsgConfirm('Deseja excluir registro?') then
+  begin
+    qrAluno.Close;
+    qrAluno.SQL.Clear;
+    qrAluno.SQL.Add('DELETE FROM aluno WHERE id = :id');
+    qrAluno.ParamByName('id').AsString := edtId.Text;
+    qrAluno.ExecSQL;
+
+    ShowMessage('Registro excluido com sucesso.');
+    LimparCampos;
+    ExibirRegistros;
+    edtNome.SetFocus;
+  end;
+
+end;
+
+procedure TfrmCadastroAluno.SpeedButton5Click(Sender: TObject);
+begin
+  inherited;
+
+  if db.SelectedRows.Count - 1 = 0 then
+  begin
+    ShowMessage('Selecione um registro para atualização.');
+    db.SetFocus;
+    Exit;
+  end;
+
+  qrAluno.Close;
+  qrAluno.SQL.Clear;
+  qrAluno.SQL.Add('UPDATE aluno');
+  qrAluno.SQL.Add('SET nome = :nome');
+  qrAluno.SQL.Add('WHERE id = :id');
+  qrAluno.ParamByName('id').AsString := edtId.Text;
+  qrAluno.ParamByName('nome').AsString := edtNome.Text;
+  qrAluno.ExecSQL;
+
+  ShowMessage('Cadastro realizado com sucesso.');
+  LimparCampos;
+  ExibirRegistros;
+end;
+
+end.

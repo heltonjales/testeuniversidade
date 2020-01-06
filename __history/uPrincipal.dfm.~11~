@@ -1,0 +1,69 @@
+object frmPrincipal: TfrmPrincipal
+  Left = 0
+  Top = 0
+  Caption = 'Principal'
+  ClientHeight = 302
+  ClientWidth = 582
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  FormStyle = fsMDIForm
+  Menu = MainMenu1
+  OldCreateOrder = False
+  WindowState = wsMaximized
+  PixelsPerInch = 96
+  TextHeight = 13
+  object MainMenu1: TMainMenu
+    Left = 288
+    Top = 160
+    object Cadastro1: TMenuItem
+      Caption = 'Cadastro'
+      object Alunos1: TMenuItem
+        Caption = 'Alunos'
+        OnClick = Alunos1Click
+      end
+      object Professores1: TMenuItem
+        Caption = 'Professores'
+        OnClick = Professores1Click
+      end
+      object Disciplinas1: TMenuItem
+        Caption = 'Disciplinas'
+        OnClick = Disciplinas1Click
+      end
+    end
+    object Pedaggico1: TMenuItem
+      Caption = 'Turmas'
+      object Matriculas1: TMenuItem
+        Caption = 'Matriculas de Alunos'
+        OnClick = Matriculas1Click
+      end
+      object urmas1: TMenuItem
+        Caption = 'Professores x Disciplinas'
+        OnClick = urmas1Click
+      end
+      object LanamentodeNotas1: TMenuItem
+        Caption = 'Lan'#231'amento de Notas'
+        OnClick = LanamentodeNotas1Click
+      end
+    end
+    object Consutlas1: TMenuItem
+      Caption = 'Consultas'
+      object urmas2: TMenuItem
+        Caption = 'Turmas'
+      end
+      object Alunos2: TMenuItem
+        Caption = 'Alunos'
+      end
+    end
+    object Relatrios1: TMenuItem
+      Caption = 'Relat'#243'rios'
+      object Alunos3: TMenuItem
+        Caption = 'Alunos'
+        OnClick = Alunos3Click
+      end
+    end
+  end
+end

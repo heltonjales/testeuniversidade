@@ -1,0 +1,305 @@
+unit uNotas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uBase, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.Buttons, Vcl.ExtCtrls, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls;
+
+type
+  TfrmLancamentoNotas = class(TfrmCadastroBase)
+    Label4: TLabel;
+    cbProfessores: TComboBox;
+    Label1: TLabel;
+    cbDisciplina: TComboBox;
+    Label2: TLabel;
+    edtAluno: TEdit;
+    Label3: TLabel;
+    edtN1: TEdit;
+    Label5: TLabel;
+    edtN2: TEdit;
+    Label6: TLabel;
+    edtNotaTrabalho: TEdit;
+    qrDiscip_Prof: TFDQuery;
+    qrDisciplina: TFDQuery;
+    qrDados: TFDQuery;
+    dsDados: TDataSource;
+    qrDadosID: TIntegerField;
+    qrDadosNOME: TStringField;
+    qrDadosNOTA_PERIODO_1: TCurrencyField;
+    qrDadosNOTA_PERIODO_2: TCurrencyField;
+    qrDadosNOTA_TRABALHO: TCurrencyField;
+    procedure cbDisciplinaClick(Sender: TObject);
+    procedure cbProfessoresClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure dbCellClick(Column: TColumn);
+    procedure sbSalvarClick(Sender: TObject);
+    procedure sbEditarClick(Sender: TObject);
+    procedure sbExcluirClick(Sender: TObject);
+    procedure sbNovoClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure CarregarProfessores;
+    procedure CarregarDisciplinas;
+    procedure ExibirRegistros;
+  end;
+
+var
+  frmLancamentoNotas: TfrmLancamentoNotas;
+  id_matricula : integer;
+  codigo_aluno : integer;
+  codigo_disciplina : integer;
+  codigo_professor : integer;
+
+implementation
+
+{$R *.dfm}
+
+uses uModulo, uSystemUtils;
+
+procedure TfrmLancamentoNotas.CarregarDisciplinas;
+begin
+  ExibirRegistros;
+  cbDisciplina.Items.Clear;
+  qrDisciplina.Close;
+  qrDisciplina.SQL.Clear;
+  qrDisciplina.SQL.Add('SELECT * FROM disciplinas');
+  qrDisciplina.Open();
+
+  while not qrDisciplina.Eof do
+  begin
+    cbDisciplina.Items.AddObject(qrDisciplina.FieldByName('descricao').AsString, TObject(qrDisciplina.FieldByName('id').AsInteger));
+    qrDisciplina.Next;
+  end;
+  qrDisciplina.Open();
+end;
+
+procedure TfrmLancamentoNotas.CarregarProfessores;
+begin
+  qrDiscip_Prof.Close;
+  qrDiscip_Prof.SQL.Clear;
+  qrDiscip_Prof.SQL.Add('SELECT * FROM professor');
+  qrDiscip_Prof.SQL.Add(' WHERE id = :id');
+  qrDiscip_Prof.ParamByName('id').AsInteger := Integer(cbProfessores.Items.Objects[cbProfessores.ItemIndex]);
+  qrDiscip_Prof.Open();
+
+  codigo_professor := qrDiscip_Prof.FieldByName('id').AsInteger;
+end;
+
+procedure TfrmLancamentoNotas.cbDisciplinaClick(Sender: TObject);
+begin
+  inherited;
+  qrDisciplina.Close;
+  qrDisciplina.SQL.Clear;
+  qrDisciplina.SQL.Add('SELECT * FROM disciplinas');
+  qrDisciplina.SQL.Add(' WHERE id = :id');
+  qrDisciplina.ParamByName('id').AsInteger := Integer(cbDisciplina.Items.Objects[cbDisciplina.ItemIndex]);
+  qrDisciplina.Open();
+
+  codigo_disciplina := qrDisciplina.FieldByName('id').AsInteger;
+
+  cbProfessores.Items.Clear;
+  qrDiscip_Prof.Close;
+  qrDiscip_Prof.SQL.Clear;
+  qrDiscip_Prof.SQL.Add('SELECT p.id, p.nome                 ');
+  qrDiscip_Prof.SQL.Add('  FROM professor p                  ');
+  qrDiscip_Prof.SQL.Add(' INNER JOIN disciplina_professor dp ');
+  qrDiscip_Prof.SQL.Add('    ON p.id = dp.codigo_professor   ');
+  qrDiscip_Prof.SQL.Add(' WHERE dp.codigo_disciplina = :codigo_disciplina');
+  qrDiscip_Prof.ParamByName('codigo_disciplina').AsInteger := codigo_disciplina;
+  qrDiscip_Prof.Open();
+
+  qrDiscip_Prof.First;
+
+  while not qrDiscip_Prof.Eof do
+  begin
+    cbProfessores.Items.AddObject(qrDiscip_Prof.FieldByName('nome').AsString, TObject(qrDiscip_Prof.FieldByName('id').AsInteger));
+    cbProfessores.ItemIndex := 0;
+    qrDiscip_Prof.Next;
+  end;
+
+  qrDiscip_Prof.Open();
+  CarregarProfessores;
+  ExibirRegistros
+end;
+
+procedure TfrmLancamentoNotas.cbProfessoresClick(Sender: TObject);
+begin
+  inherited;
+  CarregarProfessores;
+  ExibirRegistros
+end;
+
+procedure TfrmLancamentoNotas.dbCellClick(Column: TColumn);
+begin
+  inherited;
+  if qrDados.FieldByName('id').AsString <> null then
+  begin
+    id_matricula := qrDados.FieldByName('id').AsInteger;
+    edtAluno.Text := qrDados.FieldByName('nome').AsString;
+    edtN1.Text := qrDados.FieldByName('nota_periodo_1').AsString;
+    edtN2.Text := qrDados.FieldByName('nota_periodo_2').AsString;
+    edtNotaTrabalho.Text := qrDados.FieldByName('nota_trabalho').AsString;
+  end;
+end;
+
+procedure TfrmLancamentoNotas.ExibirRegistros;
+begin
+  qrDados.Close;
+  qrDados.SQL.Clear;
+  qrDados.SQL.Add('SELECT da.id                       ');
+  qrDados.SQL.Add('       ,a.nome                     ');
+  qrDados.SQL.Add('       ,da.nota_periodo_1          ');
+  qrDados.SQL.Add('       ,da.nota_periodo_2          ');
+  qrDados.SQL.Add('       ,da.nota_trabalho           ');
+  qrDados.SQL.Add('  FROM disciplina_aluno da         ');
+  qrDados.SQL.Add(' INNER JOIN disciplinas d          ');
+  qrDados.SQL.Add('    ON d.id = da.codigo_disciplina ');
+  qrDados.SQL.Add(' INNER JOIN professor p            ');
+  qrDados.SQL.Add('    ON p.id = da.codigo_professor  ');
+  qrDados.SQL.Add(' INNER JOIN aluno a                ');
+  qrDados.SQL.Add('    ON a.id = da.codigo_aluno      ');
+  qrDados.SQL.Add(' WHERE da.codigo_disciplina = :codigo_disciplina');
+  qrDados.SQL.Add('   AND  da.codigo_professor = :codigo_professor ');
+  qrDados.SQL.Add(' ORDER BY id ASC                   ');
+
+  qrDados.ParamByName('codigo_professor').AsInteger := codigo_professor;
+  qrDados.ParamByName('codigo_disciplina').AsInteger := codigo_disciplina;
+  qrDados.Open();
+end;
+
+procedure TfrmLancamentoNotas.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  frmLancamentoNotas := nil;
+end;
+
+procedure TfrmLancamentoNotas.FormShow(Sender: TObject);
+begin
+  inherited;
+  CarregarDisciplinas;
+
+end;
+
+procedure TfrmLancamentoNotas.sbEditarClick(Sender: TObject);
+begin
+  inherited;
+  if cbDisciplina.ItemIndex = -1 then
+  begin
+    ShowMessage('Selecione um registro para atualização.');
+    db.SetFocus;
+    Exit;
+  end;
+
+  if id_matricula = 0 then
+  begin
+    ShowMessage('Selecione um registro para atualização.');
+    db.SetFocus;
+    Exit;
+  end;
+
+  qrDados.Close;
+  qrDados.SQL.Clear;
+  qrDados.SQL.Add('UPDATE disciplina_aluno');
+  qrDados.SQL.Add('   SET  nota_periodo_1 = :nota_periodo_1');
+  qrDados.SQL.Add('        ,nota_periodo_2 = :nota_periodo_2 ');
+  qrDados.SQL.Add('        ,nota_trabalho = :nota_trabalho ');
+  qrDados.SQL.Add(' WHERE id = :id');
+
+  qrDados.ParamByName('id').AsInteger := id_matricula;
+
+  if edtN1.Text <> '' then
+    qrDados.ParamByName('nota_periodo_1').AsFloat := StrToFloat(edtN1.Text)
+  else
+    qrDados.ParamByName('nota_periodo_1').Value := null;
+
+  if edtN2.Text <> '' then
+     qrDados.ParamByName('nota_periodo_2').AsFloat := StrToFloat(edtN2.Text)
+  else
+    qrDados.ParamByName('nota_periodo_2').Value := null;
+
+  if edtNotaTrabalho.Text <> '' then
+    qrDados.ParamByName('nota_trabalho').AsFloat := StrToFloat(edtNotaTrabalho.Text)
+  else
+    qrDados.ParamByName('nota_trabalho').Value := null;
+
+  qrDados.ExecSQL;
+  ShowMessage('Nota atualizado com sucesso.');
+  ExibirRegistros;
+end;
+
+procedure TfrmLancamentoNotas.sbExcluirClick(Sender: TObject);
+begin
+  inherited;
+  ShowMessage('Funcionalidade não habilitada para esta tela.');
+
+end;
+
+procedure TfrmLancamentoNotas.sbNovoClick(Sender: TObject);
+begin
+  inherited;
+  cbDisciplina.ItemIndex := -1;
+  cbProfessores.ItemIndex := -1;
+  edtAluno.Text := '';
+  edtN1.Text := '';
+  edtN2.Text := '';
+  edtNotaTrabalho.Text := '';
+  qrDados.Close;
+end;
+
+procedure TfrmLancamentoNotas.sbSalvarClick(Sender: TObject);
+begin
+  inherited;
+  if cbDisciplina.ItemIndex = -1 then
+  begin
+    ShowMessage('Selecione um registro para atualização.');
+    db.SetFocus;
+    Exit;
+  end;
+
+  if id_matricula = 0 then
+  begin
+    ShowMessage('Selecione um registro para atualização.');
+    db.SetFocus;
+    Exit;
+  end;
+
+  qrDados.Close;
+  qrDados.SQL.Clear;
+  qrDados.SQL.Add('UPDATE disciplina_aluno');
+  qrDados.SQL.Add('   SET  nota_periodo_1 = :nota_periodo_1');
+  qrDados.SQL.Add('        ,nota_periodo_2 = :nota_periodo_2 ');
+  qrDados.SQL.Add('        ,nota_trabalho = :nota_trabalho ');
+  qrDados.SQL.Add(' WHERE id = :id');
+
+  qrDados.ParamByName('id').AsInteger := id_matricula;
+
+  if edtN1.Text <> '' then
+    qrDados.ParamByName('nota_periodo_1').AsFloat := StrToFloat(edtN1.Text)
+  else
+    qrDados.ParamByName('nota_periodo_1').Value := null;
+
+  if edtN2.Text <> '' then
+     qrDados.ParamByName('nota_periodo_2').AsFloat := StrToFloat(edtN2.Text)
+  else
+    qrDados.ParamByName('nota_periodo_2').Value := null;
+
+  if edtNotaTrabalho.Text <> '' then
+    qrDados.ParamByName('nota_trabalho').AsFloat := StrToFloat(edtNotaTrabalho.Text)
+  else
+    qrDados.ParamByName('nota_trabalho').Value := null;
+
+  qrDados.ExecSQL;
+  ShowMessage('Nota lançada com sucesso.');
+  ExibirRegistros;
+end;
+
+end.

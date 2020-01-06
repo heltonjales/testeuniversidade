@@ -1,0 +1,217 @@
+unit uMatricula;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uBase, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.Buttons, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Mask, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+
+type
+  TfrmCadastroBase1 = class(TfrmCadastroBase)
+    Label3: TLabel;
+    edtCpf: TMaskEdit;
+    Label2: TLabel;
+    edtProfessor: TEdit;
+    qrDados: TFDQuery;
+    dsDados: TDataSource;
+    qrAluno: TFDQuery;
+    cbDisciplina: TComboBox;
+    Label1: TLabel;
+    cbProfessores: TComboBox;
+    Label4: TLabel;
+    qrDisciplina: TFDQuery;
+    qrDiscip_Prof: TFDQuery;
+    procedure edtCpfExit(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure cbDisciplinaClick(Sender: TObject);
+    procedure sbNovoClick(Sender: TObject);
+    procedure sbSalvarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure LimparCampos;
+    procedure CarregarDisciplinas;
+    procedure CarregarProfessores;
+  end;
+
+var
+  frmCadastroBase1: TfrmCadastroBase1;
+  codigo_aluno : integer;
+  codigo_disciplina : integer;
+  codigo_professor : integer;
+
+implementation
+
+{$R *.dfm}
+
+uses uModulo, uCadastroAluno;
+
+procedure TfrmCadastroBase1.CarregarDisciplinas;
+begin
+  //ExibirRegistros;
+  cbDisciplina.Items.Clear;
+  qrDisciplina.Close;
+  qrDisciplina.SQL.Clear;
+  qrDisciplina.SQL.Add('SELECT * FROM disciplinas');
+  qrDisciplina.Open();
+
+  while not qrDisciplina.Eof do
+  begin
+    cbDisciplina.Items.AddObject(qrDisciplina.FieldByName('descricao').AsString, TObject(qrDisciplina.FieldByName('id').AsInteger));
+    qrDisciplina.Next;
+  end;
+  qrDisciplina.Open();
+end;
+
+procedure TfrmCadastroBase1.CarregarProfessores;
+begin
+
+
+end;
+
+procedure TfrmCadastroBase1.cbDisciplinaClick(Sender: TObject);
+begin
+  inherited;
+
+  qrDisciplina.Close;
+  qrDisciplina.SQL.Clear;
+  qrDisciplina.SQL.Add('SELECT * FROM disciplinas');
+  qrDisciplina.SQL.Add(' WHERE id = :id');
+  qrDisciplina.ParamByName('id').AsInteger := Integer(cbDisciplina.Items.Objects[cbDisciplina.ItemIndex]);
+  qrDisciplina.Open();
+
+  codigo_disciplina := qrDisciplina.FieldByName('id').AsInteger;
+
+  cbProfessores.Items.Clear;
+  qrDiscip_Prof.Close;
+  qrDiscip_Prof.SQL.Clear;
+  qrDiscip_Prof.SQL.Add('SELECT p.nome                       ');
+  qrDiscip_Prof.SQL.Add('  FROM professor p                  ');
+  qrDiscip_Prof.SQL.Add(' INNER JOIN disciplina_professor dp ');
+  qrDiscip_Prof.SQL.Add('    ON p.id = dp.codigo_professor   ');
+  qrDiscip_Prof.SQL.Add(' WHERE dp.codigo_disciplina = :codigo_disciplina');
+  qrDiscip_Prof.ParamByName('codigo_disciplina').AsInteger := codigo_disciplina;
+  qrDiscip_Prof.Open();
+
+  qrDiscip_Prof.First;
+
+  while not qrDiscip_Prof.Eof do
+  begin
+    cbProfessores.Items.Add(qrDiscip_Prof.FieldByName('nome').AsString);
+    cbProfessores.ItemIndex := 0;
+    qrDiscip_Prof.Next;
+  end;
+
+  qrDiscip_Prof.Open();
+end;
+
+procedure TfrmCadastroBase1.edtCpfExit(Sender: TObject);
+begin
+  inherited;
+  qrAluno.Close;
+  qrAluno.SQL.Clear;
+  qrAluno.SQL.Add('SELECT * FROM aluno');
+  qrAluno.SQL.Add(' WHERE cpf = :cpf');
+  qrAluno.ParamByName('cpf').AsString := edtCpf.Text;
+  qrAluno.Open();
+
+  if qrAluno.IsEmpty then
+  begin
+    ShowMessage('CPF não encontrado.');
+    LimparCampos;
+    edtCpf.SetFocus;
+    Exit;
+  end
+  else
+  begin
+    codigo_aluno := qrAluno.FieldByName('id').AsInteger;
+    edtCpf.Text := qrAluno.FieldByName('cpf').AsString;
+    edtProfessor.Text := qrAluno.FieldByName('nome').AsString;
+    //ExibirRegistros;
+  end;
+end;
+
+procedure TfrmCadastroBase1.FormShow(Sender: TObject);
+begin
+  inherited;
+  CarregarDisciplinas;
+end;
+
+procedure TfrmCadastroBase1.LimparCampos;
+begin
+  edtCpf.Text := '';
+  edtProfessor.Text := '';
+  //cbDisciplina.Text := '';
+end;
+
+procedure TfrmCadastroBase1.sbNovoClick(Sender: TObject);
+begin
+  inherited;
+  edtCpf.Text := '';
+  edtProfessor.Text := '';
+  cbDisciplina.Items.Clear;
+  cbProfessores.Items.Clear;
+end;
+
+procedure TfrmCadastroBase1.sbSalvarClick(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtCpf.Text) = '' then
+  begin
+    ShowMessage('Campo CPF obrigatório.');
+    edtCpf.SetFocus;
+    Exit;
+  end;
+
+  if Trim(edtProfessor.Text) = '' then
+  begin
+    ShowMessage('Campo nome obrigatório.');
+    edtProfessor.SetFocus;
+    Exit;
+  end;
+
+  if Trim(cbDisciplina.Text) = '' then
+  begin
+    ShowMessage('Campo disciplina obrigatório.');
+    cbDisciplina.SetFocus;
+    Exit;
+  end;
+
+  qrDados.Close;
+  qrDados.SQL.Clear;
+  qrDados.SQL.Add('SELECT * FROM disciplina_professor');
+  qrDados.SQL.Add(' WHERE codigo_disciplina = :codigo_disciplina');
+  qrDados.SQL.Add('   AND codigo_professor = :codigo_professor');
+  qrDados.ParamByName('codigo_disciplina').AsInteger := codigo_disciplina;
+  qrDados.ParamByName('codigo_professor').AsInteger := codigo_professor;
+  qrDados.Open;
+
+  if qrDados.IsEmpty then
+  begin
+    qrDados.Close;
+    qrDados.SQL.Clear;
+    qrDados.SQL.Add('INSERT INTO disciplina_professor (codigo_disciplina, codigo_professor)');
+    qrDados.SQL.Add('VALUES (:codigo_disciplina, :codigo_professor)');
+    qrDados.ParamByName('codigo_disciplina').AsInteger := codigo_disciplina;
+    qrDados.ParamByName('codigo_professor').AsInteger := codigo_professor;
+    qrDados.ExecSQL;
+
+    //ExibirRegistros;
+    ShowMessage('Cadastro realizado com sucesso.');
+    cbDisciplina.ItemIndex := -1;
+    Exit;
+  end
+   else
+  begin
+    //ExibirRegistros;
+    ShowMessage('Disciplina possui cadastro.');
+    Exit;
+  end;
+end;
+
+end.
